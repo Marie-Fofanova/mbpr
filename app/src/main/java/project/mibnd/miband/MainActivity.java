@@ -2,6 +2,7 @@ package project.mibnd.miband;
 
 import android.Manifest;
 import android.app.Activity;
+import android.bluetooth.BluetoothManager;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -13,6 +14,8 @@ import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -20,15 +23,36 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.Context;
+import android.app.Activity;
+import android.app.ListActivity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 import android.content.IntentFilter;
 import android.Manifest.permission;
 import android.Manifest.permission_group;
 
+import java.util.UUID;
 import java.util.Arrays;
-import java.util.Set;
+import java.util.List;
 
 import project.mibnd.miband.R;
 import project.mibnd.miband.CustomBluetoothProfile;
@@ -36,13 +60,17 @@ import project.mibnd.miband.CustomBluetoothProfile;
 public class MainActivity extends Activity {
 
     Boolean isListeningHeartRate = false;
-    BluetoothAdapter bluetoothAdapter;
+    final BluetoothManager bluetoothManager =
+            (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+    //bluetoothAdapter =
+    BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();//BluetoothAdapter.getDefaultAdapter();;
     BluetoothGatt bluetoothGatt;
     BluetoothDevice bluetoothDevice;
 
     Button btnStartConnecting, btnGetBatteryInfo, btnGetHeartRate, btnWalkingInfo, btnStartVibrate, btnStopVibrate;
     EditText txtPhysicalAddress;
     TextView txtState, txtByte;
+    final static int REQUEST_ENABLE_BT=1;
 
 
     @Override
@@ -53,22 +81,47 @@ public class MainActivity extends Activity {
         initializeObjects();
         initializeComponents();
         initializeEvents();
-
-        getBoundedDevice();
-
     }
 
-    void getBoundedDevice() {
-        Set<BluetoothDevice> boundedDevice = bluetoothAdapter.getBondedDevices();
-        for (BluetoothDevice bd : boundedDevice) {
-            if (bd.getName().contains("MI Band 2")) {
-                txtPhysicalAddress.setText(bd.getAddress());
-            }
+    private BluetoothAdapter.LeScanCallback mLeScanCallback =
+            new BluetoothAdapter.LeScanCallback() {
+        @Override
+        public void onLeScan(final BluetoothDevice device, int rssi,
+                                         byte[] scanRecord) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mLeDeviceListAdapter.addDevice(device);
+                    mLeDeviceListAdapter.notifyDataSetChanged();
+                }
+            });
         }
-    }
+    };
+        UUID uuid[]=[UUID.fromString("0x1800")];//, UUID.fromString("0x1801")];
+        BluetoothDevice bluetoothDevice1;
+
+        if (bluetoothAdapter.startLeScan(callback)){
+            callback.onLeScan(bluetoothDevice1, 0,  );
+            bluetoothDevice1.connectGatt()
+        }
+        //BluetoothLeScanner foundedDevice = bluetoothAdapter.getBluetoothLeScanner();
+        //for (BluetoothLeScanner fd : foundedDevice) {
+        //    txtState.setText((fd.getName()));
+        //    if (fd.getName().contains("MI Band 2")) {
+        //        txtPhysicalAddress.setText(fd.getAddress());
+        //    }
+        //}
+
 
     void initializeObjects() {
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+        mLeDeviceListAdapter = new DeviceScanActivity.LeDeviceListAdapter();
+        setListAdapter(mLeDeviceListAdapter);
+        scanLeDevice(true);
     }
 
     void initializeComponents() {
