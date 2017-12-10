@@ -62,7 +62,6 @@ public class MainActivity extends Activity {
     Boolean isListeningHeartRate = false;
     final BluetoothManager bluetoothManager =
             (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-    //bluetoothAdapter =
     BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();//BluetoothAdapter.getDefaultAdapter();;
     BluetoothGatt bluetoothGatt;
     BluetoothDevice bluetoothDevice;
@@ -70,8 +69,8 @@ public class MainActivity extends Activity {
     Button btnStartConnecting, btnGetBatteryInfo, btnGetHeartRate, btnWalkingInfo, btnStartVibrate, btnStopVibrate;
     EditText txtPhysicalAddress;
     TextView txtState, txtByte;
-    final static int REQUEST_ENABLE_BT=1;
 
+    final static int REQUEST_ENABLE_BT=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,45 +82,21 @@ public class MainActivity extends Activity {
         initializeEvents();
     }
 
-    private BluetoothAdapter.LeScanCallback mLeScanCallback =
-            new BluetoothAdapter.LeScanCallback() {
-        @Override
-        public void onLeScan(final BluetoothDevice device, int rssi,
-                                         byte[] scanRecord) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mLeDeviceListAdapter.addDevice(device);
-                    mLeDeviceListAdapter.notifyDataSetChanged();
-                }
-            });
-        }
-    };
-        UUID uuid[]=[UUID.fromString("0x1800")];//, UUID.fromString("0x1801")];
-        BluetoothDevice bluetoothDevice1;
 
-        if (bluetoothAdapter.startLeScan(callback)){
-            callback.onLeScan(bluetoothDevice1, 0,  );
-            bluetoothDevice1.connectGatt()
-        }
-        //BluetoothLeScanner foundedDevice = bluetoothAdapter.getBluetoothLeScanner();
-        //for (BluetoothLeScanner fd : foundedDevice) {
-        //    txtState.setText((fd.getName()));
-        //    if (fd.getName().contains("MI Band 2")) {
-        //        txtPhysicalAddress.setText(fd.getAddress());
-        //    }
+        //if (bluetoothAdapter.startLeScan(callback)){
+        //    callback.onLeScan(bluetoothDevice1, 0,  );
+         //   bluetoothDevice1.connectGatt()
         //}
 
 
     void initializeObjects() {
-
+        BluetoothAdapter.LeScanCallback callback;
         if (!bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
-        mLeDeviceListAdapter = new DeviceScanActivity.LeDeviceListAdapter();
-        setListAdapter(mLeDeviceListAdapter);
-        scanLeDevice(true);
+        if (bluetoothAdapter.startLeScan(, callback)
+
     }
 
     void initializeComponents() {
