@@ -21,16 +21,22 @@ import java.util.Set;
 public class MainActivity extends Activity {
 
 
-    Boolean isListeningHeartRate = false;
+    // --Commented out by Inspection (13.12.2017 3:38):private Boolean isListeningHeartRate = false;
 
-    BluetoothAdapter bluetoothAdapter;
-    BluetoothGatt bluetoothGatt;
-    BluetoothDevice bluetoothDevice;
+    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothGatt bluetoothGatt;
+    private BluetoothDevice bluetoothDevice;
 
-    Button btnStartConnecting, btnGetBatteryInfo, btnGetHeartRate, btnWalkingInfo, btnStartVibrate, btnStopVibrate;
-    EditText txtPhysicalAddress;
-    TextView txtState, txtByte;
-    final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
+    private Button btnStartConnecting;
+    private Button btnGetBatteryInfo;
+    private Button btnGetHeartRate;
+    private Button btnWalkingInfo;
+    private Button btnStartVibrate;
+    private Button btnStopVibrate;
+    private EditText txtPhysicalAddress;
+    private TextView txtState;
+    private TextView txtByte;
+    private final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -119,7 +125,7 @@ public class MainActivity extends Activity {
 
     }
 
-    void getBoundedDevice() {
+    private void getBoundedDevice() {
         Set<BluetoothDevice> boundedDevice = bluetoothAdapter.getBondedDevices();
         for (BluetoothDevice bd : boundedDevice) {
             if (bd.getName().contains("MI Band 2")) {
@@ -128,23 +134,23 @@ public class MainActivity extends Activity {
         }
     }
 
-    void initializeObjects() {
+    private void initializeObjects() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
-    void initilaizeComponents() {
-        btnStartConnecting = (Button) findViewById(R.id.btnStartConnecting);
-        btnGetBatteryInfo = (Button) findViewById(R.id.btnGetBatteryInfo);
-        btnWalkingInfo = (Button) findViewById(R.id.btnWalkingInfo);
-        btnStartVibrate = (Button) findViewById(R.id.btnStartVibrate);
-        btnStopVibrate = (Button) findViewById(R.id.btnStopVibrate);
-        btnGetHeartRate = (Button) findViewById(R.id.btnGetHeartRate);
-        txtPhysicalAddress = (EditText) findViewById(R.id.txtPhysicalAddress);
-        txtState = (TextView) findViewById(R.id.txtState);
-        txtByte = (TextView) findViewById(R.id.txtByte);
+    private void initilaizeComponents() {
+        btnStartConnecting = findViewById(R.id.btnStartConnecting);
+        btnGetBatteryInfo = findViewById(R.id.btnGetBatteryInfo);
+        btnWalkingInfo = findViewById(R.id.btnWalkingInfo);
+        btnStartVibrate = findViewById(R.id.btnStartVibrate);
+        btnStopVibrate = findViewById(R.id.btnStopVibrate);
+        btnGetHeartRate = findViewById(R.id.btnGetHeartRate);
+        txtPhysicalAddress = findViewById(R.id.txtPhysicalAddress);
+        txtState = findViewById(R.id.txtState);
+        txtByte = findViewById(R.id.txtByte);
     }
 
-    void initializeEvents() {
+    private void initializeEvents() {
         btnStartConnecting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -183,7 +189,7 @@ public class MainActivity extends Activity {
         });
     }
 
-    void startConnecting() {
+    private void startConnecting() {
 
         String address = txtPhysicalAddress.getText().toString();
         bluetoothDevice = bluetoothAdapter.getRemoteDevice(address);
@@ -195,17 +201,17 @@ public class MainActivity extends Activity {
 
     }
 
-    void stateConnected() {
+    private void stateConnected() {
         bluetoothGatt.discoverServices();
-        txtState.setText("Connected");
+        txtState.setText(R.string.connected);
     }
 
-    void stateDisconnected() {
+    private void stateDisconnected() {
         bluetoothGatt.disconnect();
-        txtState.setText("Disconnected");
+        txtState.setText(R.string.disconnected);
     }
 
-    void startScanHeartRate() {
+    private void startScanHeartRate() {
         txtByte.setText("...");
         BluetoothGattCharacteristic bchar = bluetoothGatt.getService(BluetoothProfile.HeartRate.service)
                 .getCharacteristic(BluetoothProfile.HeartRate.controlCharacteristic);
@@ -213,7 +219,7 @@ public class MainActivity extends Activity {
         bluetoothGatt.writeCharacteristic(bchar);
     }
 
-    void listenHeartRate() {
+    private void listenHeartRate() {
         BluetoothGattCharacteristic bchar = bluetoothGatt.getService(BluetoothProfile.HeartRate.service)
                 .getCharacteristic(BluetoothProfile.HeartRate.measurementCharacteristic);
         bluetoothGatt.setCharacteristicNotification(bchar, true);
@@ -223,7 +229,7 @@ public class MainActivity extends Activity {
         isListeningHeartRate = true;
     }
 
-    void getBatteryStatus() {
+    private void getBatteryStatus() {
         txtByte.setText("...");
         BluetoothGattCharacteristic bchar = bluetoothGatt.getService(BluetoothProfile.Basic.service)
                 .getCharacteristic(BluetoothProfile.Basic.batteryCharacteristic);
@@ -233,7 +239,7 @@ public class MainActivity extends Activity {
 
     }
 
-    void startVibrate() {
+    private void startVibrate() {
         BluetoothGattCharacteristic bchar = bluetoothGatt.getService(BluetoothProfile.AlertNotification.service)
                 .getCharacteristic(BluetoothProfile.AlertNotification.alertCharacteristic);
         bchar.setValue(new byte[]{2});
@@ -242,7 +248,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    void stopVibrate() {
+    private void stopVibrate() {
         BluetoothGattCharacteristic bchar = bluetoothGatt.getService(BluetoothProfile.AlertNotification.service)
                 .getCharacteristic(BluetoothProfile.AlertNotification.alertCharacteristic);
         bchar.setValue(new byte[]{0});
@@ -251,7 +257,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    void walkingInfo() {
+    private void walkingInfo() {
         txtByte.setText("...");
         BluetoothGattCharacteristic bchar = bluetoothGatt.getService(BluetoothProfile.Basic.service)
                 .getCharacteristic(BluetoothProfile.Basic.stepsCharacteristic);

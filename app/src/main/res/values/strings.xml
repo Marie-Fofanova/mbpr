@@ -1,15 +1,20 @@
 <resources>
-    <string name="app_name">miband</string>
+    <string name="app_name">Mi Band 2</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    //Названия кнопок
+    <string name="physical_address">Physical Address</string>
+    <string name="start_connecting">Start Connecting</string>
+    <string name="state">State:</string>
+    <string name="battery_info">Battery Info</string>
+    <string name="heart_rate">Heart Rate</string>
+    <string name="walking_info">Walking Info</string>
+    <string name="start_vibrate">Start Vibrate</string>
+    <string name="stop_vibrate">Stop Vibrate</string>
+    <string name="byte_received">Byte Received:</string>
 
-    <string name="action_settings">Settings</string>
+    //Состояния
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
 
-    <string name="ble_not_supported">Bluetooth Low Energy not supported.</string>
-    <string name="unknown_device">xvc</string>
-    <string name="title_devices">Title</string>
-    <string name="menu_scan">Scan
-    </string>
-    <string name="menu_stop">Stop</string>
+
 </resources>
