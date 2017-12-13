@@ -2,11 +2,12 @@ package project.mibnd.miband;
 
 import java.util.UUID;
 
-public class CustomBluetoothProfile {
+public class BluetoothProfile {
 
     public static class Basic {
         public static UUID service = UUID.fromString("0000fee0-0000-1000-8000-00805f9b34fb");
         public static UUID batteryCharacteristic = UUID.fromString("00000006-0000-3512-2118-0009af100700");
+        public static UUID stepsCharacteristic = UUID.fromString("00000007-0000-3512-2118-0009af100700");
     }
 
     public static class AlertNotification {
