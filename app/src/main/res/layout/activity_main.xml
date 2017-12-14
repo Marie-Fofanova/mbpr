@@ -62,14 +62,29 @@
         android:orientation="horizontal"
         android:paddingBottom="20dp"
         android:paddingTop="20dp">
-
-        <Button
-            android:id="@+id/btnGetBatteryInfo"
-            style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:text="@string/battery_info" />
+            android:orientation="vertical">
+            <Button
+                android:id="@+id/btnGetBatteryInfo"
+                style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.9"
+                android:text="@string/battery_info" />
+
+            <ProgressBar
+                android:id="@+id/Battery"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_weight="0.9"
+                android:max="100"
+                android:visibility="invisible" />
+
+        </LinearLayout>
+
 
         <Button
             android:id="@+id/btnGetHeartRate"
@@ -88,7 +103,7 @@
             android:text="@string/walking_info" />
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -98,19 +113,18 @@
         <Button
             android:id="@+id/btnStartVibrate"
             style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.3"
             android:text="@string/start_vibrate" />
 
         <Button
             android:id="@+id/btnStopVibrate"
             style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:text="@string/stop_vibrate" />
-    </LinearLayout>
+            android:text="@string/stop_vibrate"
+            android:visibility="invisible" />
+    </RelativeLayout>
 
 
     <LinearLayout

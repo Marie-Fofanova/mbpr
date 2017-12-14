@@ -7,11 +7,14 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,9 +22,6 @@ import java.util.Arrays;
 import java.util.Set;
 
 public class MainActivity extends Activity {
-
-
-    // --Commented out by Inspection (13.12.2017 3:38):private Boolean isListeningHeartRate = false;
 
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothGatt bluetoothGatt;
@@ -36,6 +36,7 @@ public class MainActivity extends Activity {
     private EditText txtPhysicalAddress;
     private TextView txtState;
     private TextView txtByte;
+    private ProgressBar battery;
     private final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
 
         @Override
@@ -112,6 +113,7 @@ public class MainActivity extends Activity {
 
     };
 
+    int REQUEST_ENABLE_BT = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,16 +128,38 @@ public class MainActivity extends Activity {
     }
 
     private void getBoundedDevice() {
-        Set<BluetoothDevice> boundedDevice = bluetoothAdapter.getBondedDevices();
-        for (BluetoothDevice bd : boundedDevice) {
-            if (bd.getName().contains("MI Band 2")) {
-                txtPhysicalAddress.setText(bd.getAddress());
+        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            Log.v("test", "Try turn on bluetooth" );
+            if (!bluetoothAdapter.isEnabled()){
+                txtState.setText(R.string.disabled);
+                Toast.makeText(this, R.string.disabled, Toast.LENGTH_LONG).show();
+                Log.v("test", "Bluetooth is not available" );
+            }
+        }
+        else {
+            Set<BluetoothDevice> boundedDevice = bluetoothAdapter.getBondedDevices();
+            for (BluetoothDevice bd : boundedDevice) {
+                if (bd.getName().contains("MI Band 2")) {
+                    txtPhysicalAddress.setText(bd.getAddress());
+                }
             }
         }
     }
 
     private void initializeObjects() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            try{
+                Thread.sleep(20000);
+            }
+            catch (InterruptedException e) {
+                Log.v("test", e.toString());
+            };
+            finish();
+        }
     }
 
     private void initilaizeComponents() {
@@ -148,9 +172,12 @@ public class MainActivity extends Activity {
         txtPhysicalAddress = findViewById(R.id.txtPhysicalAddress);
         txtState = findViewById(R.id.txtState);
         txtByte = findViewById(R.id.txtByte);
+        battery = findViewById(R.id.Battery);
+        //battery.setVisibility(View.INVISIBLE);
     }
 
-    private void initializeEvents() {
+    private void initializeEvents()  {
+        final byte[] buf=new byte[]{2};
         btnStartConnecting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -191,24 +218,48 @@ public class MainActivity extends Activity {
 
     private void startConnecting() {
 
-        String address = txtPhysicalAddress.getText().toString();
-        bluetoothDevice = bluetoothAdapter.getRemoteDevice(address);
+        if (!bluetoothAdapter.isEnabled()){
+            Toast.makeText(this, R.string.disabled, Toast.LENGTH_LONG).show();
+            Log.v("test", "Bluetooth is not available" );
+            finish();
+        }
+        else {
+            String address = txtPhysicalAddress.getText().toString();
+            txtState.setText("Connecting...");
+            bluetoothDevice = bluetoothAdapter.getRemoteDevice(address);
 
-        Log.v("test", "Connecting to " + address);
-        Log.v("test", "Device name " + bluetoothDevice.getName());
+            Log.v("test", "Connecting to " + address);
+            Log.v("test", "Device name " + bluetoothDevice.getName());
 
-        bluetoothGatt = bluetoothDevice.connectGatt(this, true, bluetoothGattCallback);
+            bluetoothGatt = bluetoothDevice.connectGatt(this, true, bluetoothGattCallback);
 
+        }
     }
 
     private void stateConnected() {
-        bluetoothGatt.discoverServices();
-        txtState.setText(R.string.connected);
+        if (!bluetoothAdapter.isEnabled()){
+            txtState.setText(R.string.disabled);
+            Toast.makeText(this, R.string.disabled, Toast.LENGTH_LONG).show();
+            Log.v("test", "Bluetooth is not available" );
+            finish();
+        }
+        else {
+            bluetoothGatt.discoverServices();
+            txtState.setText(R.string.connected);
+        }
     }
 
     private void stateDisconnected() {
-        bluetoothGatt.disconnect();
-        txtState.setText(R.string.disconnected);
+        if (!bluetoothAdapter.isEnabled()){
+            txtState.setText(R.string.disabled);
+            Toast.makeText(this, R.string.disabled, Toast.LENGTH_LONG).show();
+            Log.v("test", "Bluetooth is not available" );
+            finish();
+        }
+        else {
+            bluetoothGatt.disconnect();
+            txtState.setText(R.string.disconnected);
+        }
     }
 
     private void startScanHeartRate() {
@@ -226,25 +277,30 @@ public class MainActivity extends Activity {
         BluetoothGattDescriptor descriptor = bchar.getDescriptor(BluetoothProfile.HeartRate.descriptor);
         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
         bluetoothGatt.writeDescriptor(descriptor);
-        isListeningHeartRate = true;
+        //isListeningHeartRate = true;
     }
 
     private void getBatteryStatus() {
         txtByte.setText("...");
         BluetoothGattCharacteristic bchar = bluetoothGatt.getService(BluetoothProfile.Basic.service)
                 .getCharacteristic(BluetoothProfile.Basic.batteryCharacteristic);
+        battery.setVisibility(View.VISIBLE);
+        battery.setProgress(87);
         if (!bluetoothGatt.readCharacteristic(bchar)) {
             Toast.makeText(this, "Failed get battery info", Toast.LENGTH_SHORT).show();
         }
 
     }
 
-    private void startVibrate() {
+    private void startVibrate()  {
         BluetoothGattCharacteristic bchar = bluetoothGatt.getService(BluetoothProfile.AlertNotification.service)
                 .getCharacteristic(BluetoothProfile.AlertNotification.alertCharacteristic);
         bchar.setValue(new byte[]{2});
         if (!bluetoothGatt.writeCharacteristic(bchar)) {
             Toast.makeText(this, "Failed start vibrate", Toast.LENGTH_SHORT).show();
+        } else{
+            btnStartVibrate.setVisibility(View.INVISIBLE);
+            btnStopVibrate.setVisibility(View.VISIBLE);
         }
     }
 
@@ -254,6 +310,9 @@ public class MainActivity extends Activity {
         bchar.setValue(new byte[]{0});
         if (!bluetoothGatt.writeCharacteristic(bchar)) {
             Toast.makeText(this, "Failed stop vibrate", Toast.LENGTH_SHORT).show();
+        } else{
+            btnStopVibrate.setVisibility(View.INVISIBLE);
+            btnStartVibrate.setVisibility(View.VISIBLE);
         }
     }
 
