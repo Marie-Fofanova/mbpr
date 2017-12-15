@@ -134,16 +134,17 @@
         android:padding="10dp">
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/byte_received"
-            android:textStyle="bold" />
-
-        <TextView
             android:id="@+id/txtByte"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:scrollHorizontally="false" />
     </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/chBytes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Show bytes" />
 
 </LinearLayout>

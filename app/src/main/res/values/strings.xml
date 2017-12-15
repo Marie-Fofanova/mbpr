@@ -13,10 +13,14 @@
     <string name="byte_received">Byte Received:</string>
 
     //Состояния
+    <string name="connecting">Connecting...</string>
+    <string name="w">Wait...</string>
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
     <string name="disabled">Bluetooth is disabled. Turn on bluetooth and try again.</string>
     <string name="ble_not_supported">Bluetooth Low Energy isn\'t supported on your device. Please update hardware</string>
+    <string name="turn">Turn on</string>
+    <string name="wrong">Wrong address</string>
 
 
 </resources>
